@@ -12,6 +12,11 @@ def main():
         'Playlist': playlist_download
     }
     
+    
+    
+    download_instructions[download_type]()
+    
+    # Step 1: Ask if they want to download from a playlist or video link(s)
     print('Welcome to 25GreenBeans\' YouTube Downloader. Select your download type to begin:')
     count = 0
     for download_type in download_types:
@@ -19,7 +24,24 @@ def main():
         print(f'\t{count}. {download_type}')
     download_type = download_types[int(input(f'Select 1-{count}: ')) - 1]
     
-    download_instructions[download_type]()
+    # Step 2: Ask what type of file output they would like
+    print('Select the file type that you would like to download as:')
+    count = 0
+    for file_ext in file_extensions:
+        count += 1
+        print(f'\t{count}. {file_ext}')
+    
+    # Step 3: Ask where the user would like the output to go
+    
+    
+    # Step 4: Create temporary directory and download
+    
+    
+    # Step 5: If output format was a video, then move tmp dir files into output out dir, else convert files into out dir
+    
+    
+    # Step 6: Cleanup. Remove any tmp directories and files created
+    
     
 
 def playlist_download():
@@ -97,6 +119,8 @@ def playlist_download():
     
     print(f'{count} videos downloaded, {skipped} skipped.\nSkipped URLs: {skipped_urls}\nBeginning converison to audio...')
     
+    return tmp_dir
+    
     os.chdir(tmp_dir)
     extension = '*.mp4'
     count = 0
@@ -110,23 +134,37 @@ def playlist_download():
         
     print('Conversion completed, removing temp directory.')
     os.removedirs(tmp_dir)
+    
+# Converts file with extention ext_in in input to file with extention ext_out in output
+def media_file_conversion(input_dir, output_dir, input_ext, output_ext):
+    os.chdir(tmp_dir)
+    
+    count = 0
+    for video in glob.glob('*.' + input_ext):
+        count += 1
+        mp3_file_name = output_dir + os.path.splitext(os.path.basename(video))[0] + '.' + output_ext
         
+        print(f'({count}) {mp3_filename}')
+        
+        AudioSegment.from_file(video).export(mp3_filename, format=output_ext)
+        os.remove(video)
+    os.chdir(output_dir)
+    
+    return count
 
 # TODO: Add a class that uses def __contains__ to make this more elegent
 def get_target_tracks_list(target_track_string):
     target_track_string = ''.join(target_track_string.split())
-    target_tracks = []
+    target_tracks = set()
     
     for entry in target_track_string.split(','):
         if '-' in entry:
             a = entry.split('-')
             for x in range(int(a[0]), int(a[1]) + 1):
-                target_tracks += [x]
+                target_tracks.add(x)
         else:
-            target_tracks += [int(entry)]
+            target_tracks.add(int(entry))
 
-    # TODO: make into a set
-    list.sort(target_tracks)
     return target_tracks
 
 
